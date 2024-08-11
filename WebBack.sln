@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebBack", "WebBack\WebBack.csproj", "{B1763DDF-32FD-4C34-989F-F1AF7CCFDF61}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1763DDF-32FD-4C34-989F-F1AF7CCFDF61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1763DDF-32FD-4C34-989F-F1AF7CCFDF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1763DDF-32FD-4C34-989F-F1AF7CCFDF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1763DDF-32FD-4C34-989F-F1AF7CCFDF61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8842C9D8-9417-4B19-9B72-AD4736641E53}
+	EndGlobalSection
+EndGlobal
