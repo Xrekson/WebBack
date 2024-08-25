@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using WebBack.Database;
 using WebBack.Encryption;
 using WebBack.Model;
 
@@ -38,6 +40,22 @@ namespace WebBack.Entity
             _context.Users.Add(customer);
             await _context.SaveChangesAsync();
             return customer;
+        }
+
+        public async Task<Users> UpdateCustomerAsync(string email, Users updatedCustomer)
+        {
+            var existingCustomer = await GetCustomerAsync(email, updatedCustomer.password);
+            if (existingCustomer == null)
+            {
+                throw new Exception("Customer not found");
+            }
+            existingCustomer.Name = updatedCustomer.Name;
+            existingCustomer.password = _encrypt.Encrypt(updatedCustomer.password);
+            existingCustomer.Mobile = updatedCustomer.Mobile;
+            //existingCustomer. = updatedCustomer.address;
+            _context.Users.Update(existingCustomer);
+            await _context.SaveChangesAsync();
+            return existingCustomer;
         }
     }
 }

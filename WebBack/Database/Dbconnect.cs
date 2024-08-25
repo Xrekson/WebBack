@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
 using WebBack.Model;
 
-namespace WebBack.Entity
+namespace WebBack.Database
 {
     public partial class Dbconnect : DbContext
     {
