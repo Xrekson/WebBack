@@ -1,21 +1,19 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+﻿
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebBack.Model
 {
+    [PrimaryKey(nameof(Id))]
     public class Country
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        [Required]
         public string Id { get; set; }
-
-        [BsonElement("Name")]
+        [Required]
         public string Name { get; set; }
-
-        [BsonElement("Code")]
+        [Required]
         public string Code { get; set; }
-
-        [BsonElement("Cities")]
+        [Required]
         public List<City> Cities { get; set; }
     }
 }

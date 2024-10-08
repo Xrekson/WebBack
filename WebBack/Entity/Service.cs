@@ -1,7 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using WebBack.Database;
+﻿using WebBack.Database;
 using WebBack.Encryption;
 using WebBack.Model;
 
@@ -18,19 +15,19 @@ namespace WebBack.Entity
             _encrypt = encrypt;
         }
 
-        public async Task<List<Users>> GetCustomersAsync()
+        public List<Users> GetCustomers()
         {
-            return await _context.Users.AsQueryable().ToListAsync();
+            return  _context.Users.AsQueryable().ToList();
         }
 
-        public async Task<Users> GetCustomerAsync(string email,string _password)
+        public  Users GetCustomer(string email,string _password)
         {
             var password = _encrypt.Encrypt(_password);
             var Email = email;
-            return await _context.Users.FindAsync(new object[] { Email, password });
+            return  _context.Users.Find(new { Email, password });
         }
 
-        public async Task<Users> CreateCustomerAsync(Users customer)
+        public  Users CreateCustomer(Users customer)
         {
             if (customer == null)
             {
@@ -38,13 +35,13 @@ namespace WebBack.Entity
             }
             customer.password = _encrypt.Encrypt(customer.password);
             _context.Users.Add(customer);
-            await _context.SaveChangesAsync();
+             _context.SaveChanges();
             return customer;
         }
 
-        public async Task<Users> UpdateCustomerAsync(string email, Users updatedCustomer)
+        public  Users UpdateCustomer(string email, Users updatedCustomer)
         {
-            var existingCustomer = await GetCustomerAsync(email, updatedCustomer.password);
+            var existingCustomer =  GetCustomer(email, updatedCustomer.password);
             if (existingCustomer == null)
             {
                 throw new Exception("Customer not found");
@@ -54,7 +51,7 @@ namespace WebBack.Entity
             existingCustomer.Mobile = updatedCustomer.Mobile;
             //existingCustomer. = updatedCustomer.address;
             _context.Users.Update(existingCustomer);
-            await _context.SaveChangesAsync();
+             _context.SaveChanges();
             return existingCustomer;
         }
     }

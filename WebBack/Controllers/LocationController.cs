@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Any;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebBack.Entity;
 using WebBack.Model;
 
@@ -19,24 +16,24 @@ namespace WebBack.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<City>>> GetCitys()
+        public List<City> GetCitys()
         {
-            return await _service.GetCitiesAsync();
+            return _service.GetCities();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<City>> GetCitysById(string id)
+        public ActionResult<City> GetCitysById(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            var dbcity = await _service.GetCityAsync(id);
+            var dbcity =  _service.GetCity(id);
             return Ok(new { Message = "City Data", data = dbcity });
         }
 
         [HttpPost]
-        public async Task<ActionResult<Users>> CreateCustomerAsync(City city)
+        public  ActionResult<Users> CreateCustomer(City city)
         {
             if (!ModelState.IsValid || city == null)
             {
@@ -44,8 +41,8 @@ namespace WebBack.Controllers
             }
             else
             {
-                await _service.CreateCityAsync(city);
-                City citydb = await _service.GetCityAsyncByAttr(city.Name, "Name");
+                 _service.CreateCity(city);
+                City citydb =  _service.GetCity(city.Id);
                 City dbCity = citydb;
                 Console.WriteLine(dbCity);
                 return Ok(new { Message = "City created successfully", Id = city.Id, name = city.Name, description = city.Description });

@@ -1,15 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using dotenv.net.Utilities;
+using Microsoft.EntityFrameworkCore;
 using WebBack.Model;
 
 namespace WebBack.Database
 {
     public partial class Dbconnect : DbContext
     {
-        public Dbconnect(DbContextOptions<Dbconnect> options) :
-            base(options)
+        protected readonly IConfiguration Configuration;
+
+        public Dbconnect(IConfiguration configuration)
         {
+            Configuration = configuration;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            // connect to postgres with connection string from app settings
+            options.UseNpgsql(EnvReader.GetStringValue("DB_Connection"));
         }
         public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<City> Cites { get; set; }
+        public virtual DbSet<Country> Countries { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Users>().HasKey(e => new { e.Email, e.password });

@@ -1,77 +1,104 @@
-﻿using MongoDB.Driver;
-using WebBack.Model;
+﻿using WebBack.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using WebBack.Database;
-using MongoDB.Driver.Linq;
+using WebBack.Encryption;
 namespace WebBack.Entity
 {
 
     public class LocationService
     {
-        private readonly IMongoCollection<City> _citiesCollection;
-        private readonly IMongoCollection<Country> _countriesCollection;
+        private readonly Dbconnect _context;
+        private readonly EncService _encrypt;
 
-        public LocationService(IOptions<MongoDbConect> mongoDatabaseSettings)
+        public LocationService(Dbconnect context, EncService encrypt)
         {
-            var mongoClient = new MongoClient(mongoDatabaseSettings.Value.ConnectionString);
-            var database = mongoClient.GetDatabase(mongoDatabaseSettings.Value.DatabaseName);
-            _citiesCollection = database.GetCollection<City>("Cities");
-            _countriesCollection = database.GetCollection<Country>("Countries");
+            _context = context;
+            _encrypt = encrypt;
         }
 
-        public async Task<List<City>> GetCitiesAsync()
+        public List<City> GetCities()
         {
-            return await _citiesCollection.Find(x => true).ToListAsync();
+            return _context.Cites.AsQueryable().ToList();
         }
 
-        public async Task<City> GetCityAsync(string id)
+        public City GetCity(string id)
         {
-            return await _citiesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return _context.Cites.Find(id);
+        }
+        public List<Country> GetCountries()
+        {
+            return _context.Countries.AsQueryable().ToList();
         }
 
-        public async Task<City> GetCityAsyncByAttr(string data, string attr)
+        public Country GetCountry(string id)
         {
-            return await _citiesCollection.Find(Builders<City>.Filter.Eq(attr, data)).FirstOrDefaultAsync();
-        }
-        public async Task<List<Country>> GetCountriesAsync()
-        {
-            return await _countriesCollection.Find(x => true).ToListAsync();
+            return _context.Countries.Find(id);
         }
 
-        public async Task<Country> GetCountryAsync(string id)
+        public City CreateCity(City city)
         {
-            return await _countriesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+            _context.Cites.Add(city);
+            _context.SaveChanges();
+            return city;
         }
 
-        public async Task CreateCityAsync(City city)
+        public Country CreateCountry(Country country)
         {
-            await _citiesCollection.InsertOneAsync(city);
+            _context.Countries.Add(country);
+            _context.SaveChanges();
+            return country;
         }
 
-        public async Task CreateCountryAsync(Country country)
+        public City UpdateCity(City city)
         {
-            await _countriesCollection.InsertOneAsync(country);
+            var existingCity = GetCity(city.Id);
+            if (existingCity == null)
+            {
+                throw new Exception("City not found");
+            }
+            existingCity.Name = city.Name;
+            existingCity.Description = city.Description;
+            _context.Cites.Update(existingCity);
+            _context.SaveChanges();
+            return existingCity;
         }
 
-        public async Task UpdateCityAsync(City city)
+        public Country UpdateCountry(Country country)
         {
-            await _citiesCollection.ReplaceOneAsync(x => x.Id == city.Id, city);
+            var existingCountry = GetCountry(country.Id);
+            if (existingCountry == null)
+            {
+                throw new Exception("Country not found");
+            }
+            existingCountry.Name = country.Name;
+            existingCountry.Cities = country.Cities;
+            _context.Countries.Update(existingCountry);
+            _context.SaveChanges();
+            return existingCountry;
         }
 
-        public async Task UpdateCountryAsync(Country country)
+        public Boolean DeleteCity(string id)
         {
-            await _countriesCollection.ReplaceOneAsync(x => x.Id == country.Id, country);
+            var Dcity = _context.Cites.Find(id);
+            if (Dcity != null)
+            {
+                _context.Cites.Remove(Dcity);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
-        public async Task DeleteCityAsync(string id)
+        public Boolean DeleteCountry(string id)
         {
-            await _citiesCollection.DeleteOneAsync(x => x.Id == id);
-        }
-
-        public async Task DeleteCountryAsync(string id)
-        {
-            await _countriesCollection.DeleteOneAsync(x => x.Id == id);
+            var Dcountry = _context.Countries.Find(id);
+            if (Dcountry != null)
+            {
+                _context.Countries.Remove(Dcountry);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
     }
 }

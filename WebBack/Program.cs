@@ -2,23 +2,20 @@ using WebBack.Entity;
 using WebBack.Encryption;
 using Microsoft.EntityFrameworkCore;
 using WebBack.Database;
-using MongoDB.Bson;
-using Microsoft.Extensions.DependencyInjection;
+using dotenv.net;
 
 var builder = WebApplication.CreateBuilder(args);
+DotEnv.Load();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 //This section below is for connection string 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<Dbconnect>(options => options.UseSqlServer(connectionString));
-builder.Services.Configure<MongoDbConect>(builder.Configuration.GetSection("Mongodatabase"));
-builder.Services.AddSingleton<LocationService>();
+builder.Services.AddDbContext<Dbconnect>();
 builder.Services.AddScoped<Service>();
 builder.Services.AddScoped<EncService>(serviceProvider => {
-    var configuration = serviceProvider.GetService<IConfiguration>();
-    var key = configuration["Encryption:Key"];
-    var iv = configuration["Encryption:IV"];
+    var envVars = DotEnv.Read();
+    var key = envVars["Encryption_Key"];
+    var iv = envVars["Encryption_IV"];
     Console.WriteLine(key,iv);
     return new EncService(key, iv);
 });
