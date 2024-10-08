@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebBack.Encryption;
 using WebBack.Entity;
 using WebBack.Model;
 
@@ -9,10 +10,12 @@ namespace WebBack.Controllers
     public class UsersController : ControllerBase
     {
         private readonly Service _service;
+        private AuthService _authservice;
 
         public UsersController(Service service)
         {
             _service = service;
+            _authservice = new AuthService();
         }
 
         [HttpGet]
@@ -31,6 +34,22 @@ namespace WebBack.Controllers
             }
             var Dbcustomer =  _service.GetCustomer(customer.Email, customer.password);
             return Ok(new { Message = "Logged IN!", Id = Dbcustomer.Id, name = Dbcustomer.Name, email = Dbcustomer.Email });
+        }
+
+        [HttpPost]
+        [Route("/authenticate")]
+        public  ActionResult<Users> GetJWT([FromBody] Users customer)
+        {
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            var Dbcustomer =  _service.GetCustomer(customer.Email, customer.password);
+            if (Dbcustomer == null)
+            {
+                return NotFound();
+            }
+            return Ok(new{ Token = _authservice.GenerateToken(Dbcustomer)});
         }
 
         [HttpPost]

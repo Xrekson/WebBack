@@ -24,7 +24,7 @@ namespace WebBack.Entity
         {
             var password = _encrypt.Encrypt(_password);
             var Email = email;
-            return  _context.Users.Find(new { Email, password });
+            return  _context.Users.Find(Email, password);
         }
 
         public  Users CreateCustomer(Users customer)
