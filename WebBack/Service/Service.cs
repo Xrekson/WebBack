@@ -1,6 +1,7 @@
 ﻿using WebBack.Database;
-using WebBack.Encryption;
+using WebBack.Utility;
 using WebBack.Model;
+using WebBack.Data;
 
 namespace WebBack.Entity
 {
@@ -27,15 +28,20 @@ namespace WebBack.Entity
             return  _context.Users.Find(Email, password);
         }
 
-        public  Users CreateCustomer(Users customer)
+        public UserData CreateCustomer(UserData customer)
         {
             if (customer == null)
             {
                 throw new ArgumentNullException(nameof(customer));
             }
             customer.password = _encrypt.Encrypt(customer.password);
-            _context.Users.Add(customer);
-             _context.SaveChanges();
+            var customerDb= new Users();
+            customerDb.Name = customer.name;
+            customerDb.Email = customer.email;
+            customerDb.password = customer.password;
+            customerDb.Mobile = customer.mobile;
+            _context.Users.Add(customerDb);
+            _context.SaveChanges();
             return customer;
         }
 

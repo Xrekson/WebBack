@@ -1,7 +1,7 @@
 ﻿using WebBack.Model;
 using Microsoft.EntityFrameworkCore;
 using WebBack.Database;
-using WebBack.Encryption;
+using WebBack.Utility;
 namespace WebBack.Entity
 {
 

@@ -5,11 +5,11 @@ using dotenv.net;
 using Microsoft.IdentityModel.Tokens;
 using WebBack.Model;
 
-namespace WebBack.Encryption;
+namespace WebBack.Utility;
 
 public class AuthService
 {
-    public string GenerateToken(Users user)
+    public Auth GenerateToken(Users user)
     {
         var envVars = DotEnv.Read();
         var handler = new JwtSecurityTokenHandler();
@@ -33,7 +33,8 @@ public class AuthService
         };
 
         var token = handler.CreateToken(tokenDescriptor);
-        return handler.WriteToken(token);
+        var stringToken = handler.WriteToken(token);
+        return new Auth(stringToken,tokenDescriptor.Expires);
     }
 
     private static ClaimsIdentity GenerateClaims(Users user)
@@ -41,5 +42,14 @@ public class AuthService
         var claims = new ClaimsIdentity();
         claims.AddClaim(new Claim(ClaimTypes.Name, user.Email));
         return claims;
+    }
+    public class Auth{
+        public string token { get; set;}
+        public DateTime expiresIn { get; set;}
+
+        public Auth(string tokenx,DateTime? exp){
+            token = tokenx ?? string.Empty;
+            expiresIn = exp ?? DateTime.Now;
+        }
     }
 }

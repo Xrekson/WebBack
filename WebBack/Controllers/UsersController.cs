@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebBack.Encryption;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using WebBack.Data;
+using WebBack.Utility;
 using WebBack.Entity;
-using WebBack.Model;
 
 namespace WebBack.Controllers
 {
@@ -19,41 +21,38 @@ namespace WebBack.Controllers
         }
 
         [HttpGet]
-        public  ActionResult<List<Users>> GetCustomers()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public  ActionResult<List<UserData>> GetCustomers()
         {
-            return _service.GetCustomers();
-        }
-
-        [HttpPost]
-        [Route("/login")]
-        public  ActionResult<Users> GetCustomer([FromBody] Users customer)
-        {
-            if (customer == null)
-            {
-                return NotFound();
+            var customers = _service.GetCustomers();
+            var customersOut = customers.Select(x => new UserRecord(x.Id,x.Name,x.Email,x.Mobile)).ToList();
+            if(customers is not null){
+                return Ok(customersOut);
+            }else{
+                return new List<UserData>();
             }
-            var Dbcustomer =  _service.GetCustomer(customer.Email, customer.password);
-            return Ok(new { Message = "Logged IN!", Id = Dbcustomer.Id, name = Dbcustomer.Name, email = Dbcustomer.Email });
         }
 
         [HttpPost]
         [Route("/authenticate")]
-        public  ActionResult<Users> GetJWT([FromBody] Users customer)
+        public  ActionResult<UserData> GetJWT([FromBody] Auth customer)
         {
-            if (customer == null)
+            if (customer.Email == null || customer.Password == null)
             {
                 return NotFound();
             }
-            var Dbcustomer =  _service.GetCustomer(customer.Email, customer.password);
+            var Dbcustomer =  _service.GetCustomer(customer.Email, customer.Password);
             if (Dbcustomer == null)
             {
                 return NotFound();
             }
-            return Ok(new{ Token = _authservice.GenerateToken(Dbcustomer)});
+            var tokenAuth =  _authservice.GenerateToken(Dbcustomer);
+            return Ok(new{ Message = "Logged IN!",token = tokenAuth.token, expires = tokenAuth.expiresIn});
         }
 
         [HttpPost]
-        public  ActionResult<Users> CreateCustomer(Users customer)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public  ActionResult<UserData> CreateCustomer(UserData customer)
         {
             if (!ModelState.IsValid)
             {
@@ -61,7 +60,7 @@ namespace WebBack.Controllers
             }
             var createdCustomer =  _service.CreateCustomer(customer);
             Console.WriteLine(createdCustomer);
-            return Ok(new { Message = "Customer created successfully", Id = createdCustomer.Id ,name = createdCustomer.Name, email = createdCustomer.Email});
+            return Ok(new { Message = "Customer created successfully", Id = createdCustomer.id ,name = createdCustomer.name, email = createdCustomer.email});
         }
     }
 }

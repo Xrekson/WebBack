@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace WebBack.Encryption
+namespace WebBack.Utility
 {
     public class EncService
     {
