@@ -20,7 +20,6 @@ builder.Services.AddScoped<EncService>(serviceProvider => {
     var envVars = DotEnv.Read();
     var key = envVars["Encryption_Key"];
     var iv = envVars["Encryption_IV"];
-    Console.WriteLine(key,iv);
     return new EncService(key, iv);
 });
 builder.Services
@@ -45,17 +44,15 @@ builder.Services.AddAuthorization();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+}else{
+app.UseExceptionHandler("/Error");
 }
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

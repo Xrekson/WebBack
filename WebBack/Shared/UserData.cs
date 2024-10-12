@@ -1,14 +1,21 @@
 namespace WebBack.Data
 {
-    public class UserData
+    public record UserData
     {
+        public UserData(int id, string name, string email, string mobile)
+        {
+            this.id = id;
+            this.name = name;
+            this.email = email;
+            this.mobile = mobile;
+            this.password = "";
+        }
+
         public int id { get; set; }
-        public string name { get; set; } = string.Empty;
-        public string email { get; set; } = string.Empty;
-        public string password { get; set; } = string.Empty;
-        public string mobile { get; set; } = string.Empty;
+        public string name { get; set; } 
+        public string email { get; set; } 
+        public string mobile { get; set; } 
+        public string password { get; set; } 
 
     }
-        public record UserRecord(int Id, string Name, string Email,string Mobile="");
-        public record UserRecordNull();
 }

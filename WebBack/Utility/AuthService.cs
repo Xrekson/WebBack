@@ -34,7 +34,7 @@ public class AuthService
 
         var token = handler.CreateToken(tokenDescriptor);
         var stringToken = handler.WriteToken(token);
-        return new Auth(stringToken,tokenDescriptor.Expires);
+        return new Auth(user.Id,stringToken,tokenDescriptor.Expires);
     }
 
     private static ClaimsIdentity GenerateClaims(Users user)
@@ -43,13 +43,5 @@ public class AuthService
         claims.AddClaim(new Claim(ClaimTypes.Name, user.Email));
         return claims;
     }
-    public class Auth{
-        public string token { get; set;}
-        public DateTime expiresIn { get; set;}
-
-        public Auth(string tokenx,DateTime? exp){
-            token = tokenx ?? string.Empty;
-            expiresIn = exp ?? DateTime.Now;
-        }
-    }
+    public record Auth(int id,string token,DateTime? expiresIn);
 }

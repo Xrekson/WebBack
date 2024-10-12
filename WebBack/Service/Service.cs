@@ -2,6 +2,7 @@
 using WebBack.Utility;
 using WebBack.Model;
 using WebBack.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebBack.Entity
 {
@@ -10,7 +11,7 @@ namespace WebBack.Entity
         private readonly Dbconnect _context;
         private readonly EncService _encrypt;
 
-        public Service(Dbconnect context,EncService encrypt)
+        public Service(Dbconnect context, EncService encrypt)
         {
             _context = context;
             _encrypt = encrypt;
@@ -18,16 +19,19 @@ namespace WebBack.Entity
 
         public List<Users> GetCustomers()
         {
-            return  _context.Users.AsQueryable().ToList();
+            return _context.Users.AsQueryable().ToList();
         }
 
+        public Users GetCustomer(int id)
+        {
+            return _context.Users.Find(id);
+        }
         public  Users GetCustomer(string email,string _password)
         {
             var password = _encrypt.Encrypt(_password);
             var Email = email;
             return  _context.Users.Find(Email, password);
         }
-
         public UserData CreateCustomer(UserData customer)
         {
             if (customer == null)
@@ -35,7 +39,7 @@ namespace WebBack.Entity
                 throw new ArgumentNullException(nameof(customer));
             }
             customer.password = _encrypt.Encrypt(customer.password);
-            var customerDb= new Users();
+            var customerDb = new Users();
             customerDb.Name = customer.name;
             customerDb.Email = customer.email;
             customerDb.password = customer.password;
@@ -45,20 +49,26 @@ namespace WebBack.Entity
             return customer;
         }
 
-        public  Users UpdateCustomer(string email, Users updatedCustomer)
+        public UserData UpdateCustomer(UserData updatedCustomer)
         {
-            var existingCustomer =  GetCustomer(email, updatedCustomer.password);
-            if (existingCustomer == null)
+            try
             {
-                throw new Exception("Customer not found");
+                var userDB = GetCustomer(updatedCustomer.id);
+                if (userDB == null)
+                {
+                    throw new Exception("Customer not found");
+                }
+                userDB.Name = updatedCustomer.name;
+                userDB.password = _encrypt.Encrypt(updatedCustomer.password);
+                userDB.Mobile = updatedCustomer.mobile;
+                userDB.Email = updatedCustomer.email;
+                //userDB. = updatedCustomer.address;
+                _context.Users.Update(userDB);
+                _context.SaveChanges();
+                return new UserData(userDB.Id, userDB.Name, userDB.Email, userDB.Mobile);
+            }catch(DbUpdateException error){
+                throw new ApiError(error.GetBaseException().Message,error.Message);
             }
-            existingCustomer.Name = updatedCustomer.Name;
-            existingCustomer.password = _encrypt.Encrypt(updatedCustomer.password);
-            existingCustomer.Mobile = updatedCustomer.Mobile;
-            //existingCustomer. = updatedCustomer.address;
-            _context.Users.Update(existingCustomer);
-             _context.SaveChanges();
-            return existingCustomer;
         }
     }
 }
